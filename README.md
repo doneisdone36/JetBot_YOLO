@@ -1,6 +1,6 @@
 # JetBot_YOLO
 
-#DeepLearning JETBOT
+# DeepLearning JETBOT
 
-###Road Followiing
+### Road Followiing
 시연 영상 : https://youtu.be/vY_a-Ygw8hU
