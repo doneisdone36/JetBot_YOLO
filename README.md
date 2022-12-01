@@ -15,6 +15,7 @@ Jetbot 내부에서 실시간 운동 자세 감지 추적하며 사용자에게 
 >Tracker는 Occlustion, ID Swtiching에 이점을 보이는 Detectron,Strong_SORT를 사용합니다.
 
 
+### Getting Started
 ```
 $ python demo.py --config-file [model path] --video-input [source] --confidence-threshold 0.6 --output [output]
 ```
