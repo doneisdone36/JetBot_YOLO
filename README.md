@@ -40,6 +40,11 @@ pip install -r "requirement.txt"
 $ python3 yolov7_push_up.py --source 0  # webcam
 ```
 
+## Goal
+1. 운동 콘텐츠를 접목시켜 콘텐츠 속 운동 동작과 현재 자신의 동작이 얼마나 일치하는지 체크해준다.
+2. 바른 자세는 녹색, 틀린 자세는 적색으로 표시하여 사용자가 어느 부위의 신체가 바른 자세를 유지하고 있고, 어느 부위의 신체가 틀린 자세를 취하고 있는지 한눈에 알 수 있도록 해준다.
+3. 운동 동작 영상과 분석 정보를 저장하고 축적해 사용자의 운동량을 체크해주고, 정확한 자세 정보에 대한 데이터를 보여준다.
+
 ##Code Block
  - yolov7_push_up.py
 ```
@@ -82,7 +87,9 @@ if drawskeleton :
   for idx in range(output.shape[0]):
     plot_skeleton_kpts(img, output[idx, 7:].T,3)
 ```
-## Goal
-1. 운동 콘텐츠를 접목시켜 콘텐츠 속 운동 동작과 현재 자신의 동작이 얼마나 일치하는지 체크해준다.
-2. 바른 자세는 녹색, 틀린 자세는 적색으로 표시하여 사용자가 어느 부위의 신체가 바른 자세를 유지하고 있고, 어느 부위의 신체가 틀린 자세를 취하고 있는지 한눈에 알 수 있도록 해준다.
-3. 운동 동작 영상과 분석 정보를 저장하고 축적해 사용자의 운동량을 체크해주고, 정확한 자세 정보에 대한 데이터를 보여준다.
+
+## Version_Log
+branch
+ - jetson_install -> jetson_setup(0.0.3)
+ - estimation -> estimate person push-up(latest: 0.0.4)
+
