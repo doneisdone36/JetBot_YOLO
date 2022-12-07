@@ -90,6 +90,6 @@ if drawskeleton :
 
 ## Version_Log
 branch
- - jetson_install -> jetson_setup(0.0.3)
+ - jetson_install -> jetson_setup(0.0.4)
  - estimation -> estimate person push-up(latest: 0.0.4)
 
