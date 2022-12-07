@@ -9,14 +9,18 @@ from models.experimental import attempt_load
 from utils.plots import output_to_keypoint, plot_skeleton_kpts
 from utils.general import non_max_suppression_kpt, strip_optimizer
 from torchvision import transforms
-from yolov7_push_up_util import findAngle
+from yolov7_push_util import Angle
+# from jetson_util import Gstreamer_pipeline
 from PIL import Image, ImageDraw, ImageFont
+
+
+cap = cv2.VideoCapture('nvarguscamerasrc ! video/x-raw(memory:NVMM), width=1280, height=720, format=(string)NV12, framerate=(fraction)20/1 ! nvvidconv ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink', cv2.CAP_GSTREAMER)
 
 @torch.no_grad()
 def run(
         yolo_weights = 'yolov7-w6-pose.pt',
-        source = 'test.mp4',
-        device = 'cpu',
+        source = '0',
+        device = 'cuda:0',
         curl_traker = False,
         drawskeleton = True
 ):      
@@ -24,24 +28,24 @@ def run(
     player = source.split('/')[-1].split('.')[-1].strip().lower()
     if player in ["mp4","webm","avi"] or player not in ["mp4","webm","avi"] and player.isnumeric():
         
-        input_path = int(source) if source.isnumeric() else source 
-        device = select_device(opt.device)
+        # input_path = int(source) if source.isnumeric() else source 
+        # device = select_device(opt.device)
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         half = device.type != 'cpu'
         model = attempt_load(yolo_weights,map_location=device)
         _ = model.eval()
         
         
-        cap = cv2.VideoCapture(input_path)
         webcam = False
         
             
-        fw, fh = int(cap.get(3)), int(cap.get(4))
-        if player.isnumeric():
-            webcam = True
-            fw, fh = 1280, 768
+        # fw, fh = int(cap.get(3)), int(cap.get(4))
+        # if player.isnumeric():
+        #     webcam = True
+        fw, fh = 1280, 720
         
-        vid_write_image = letterbox(
-            cap.read()[1], (fw), stride=64,auto=True)[0]
+        # vid_write_image = letterbox(
+        #     cap.read()[1], (fw), stride=64,auto=True)[0]
         
         # resize_height, resize_width = vid_write_image.shape[:2]
         # out_video_name = "output" if source.isnumeric()else f"{input_path.split('/')[-1].split[0]}"
@@ -53,15 +57,15 @@ def run(
         direction = 0
         
         
-        fontpath = "BMJUA_otf.otf"
+        fontpath = "BMJUA_ttf.ttf"
         font = ImageFont.truetype(fontpath, 32)
         font1 = ImageFont.truetype(fontpath, 32)
         
         while True:
             # frame_count += 1 
-            print(f"Frame {frame_count} Processing")
-            ret,frame = cap.read()
-            if ret:
+            print("Frame {0} Processing".format(frame_count))
+            success,frame = cap.read()
+            if success:
                 orig_frame = frame
                 
                 image = cv2.cvtColor(orig_frame, cv2.COLOR_BGR2RGB)
@@ -98,7 +102,7 @@ def run(
                 if curl_traker :
                     for idx in range(output.shape[0]):
                         kpts = output[idx, :7].T
-                        angle = findAngle(img, kpts,5,7,9, draw=True)
+                        angle = Angle(img, kpts,5,7,9, draw=True)
                         percentage = np.interp(angle, (210,290), (0,100))
                         bar = np.interp(angle, (220,290), (int(fh)-100,100))
                         
@@ -128,10 +132,10 @@ def run(
                     draw.rounded_rectangle((fw-300, (fh//2)- 100, fw-50, (fh//2) * 100),fill = color, radius= 40)
 
                     draw.text(
-                        (145,int(bar)-17), f"{int(percentage)}%", font=font, fill=(255,255,255))
+                        (145,int(bar)-17), "{0}%".format(int(percentage)), font=font, fill=(255,255,255))
             
                     draw.text(
-                        (fw-230,(fh//2)-100), f"{int(bcount)}%", font=font1, fill=(255,255,255))
+                        (fw-230,(fh//2)-100), "{0}%".format(int(bcount)), font=font1, fill=(255,255,255))
 
                     img = np.array(im)
                     

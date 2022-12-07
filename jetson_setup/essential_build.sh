@@ -16,8 +16,12 @@ cd ../
 pip install 'pillow<7'
 #installaion detectron prerequired
 sudo apt-get install -y python-matplotlib python3-testresources
-#detectrion2 v0.5 why? because python3.6 support
-git clone -b v0.5 https://github.com/facebookresearch/detectron2.git
-python3 -m pip install -e detectron2/ 
+#yolov7
+git clone -b v0.5 https://github.com/WongKinYiu/yolov7.git
+#mv_files
+cd yolov7
+pip3 install -r "requirement.txt"
+wget https://github.com/WongKinYiu/yolov7/releases/download/v0.1/yolov7-w6-pose.pt
+
 #jtop
 sudo -H pip3 install jetson-stats
