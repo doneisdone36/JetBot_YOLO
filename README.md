@@ -6,7 +6,7 @@
  - yolo를 통해 가져온 값을 통해 push-up을 측정합니다.
  
 ## Demo
-<img width="250" alt="Screenshot%202022-11-29%20at%2011 27 18%20AM" src="https://user-images.githubusercontent.com/71868697/204456043-32986f4f-8340-4701-a800-d872a71bea59.png">
+<img src="./demo.gif" width="800" height="450"/>
 
 ## Team
 
