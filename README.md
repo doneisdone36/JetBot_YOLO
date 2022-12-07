@@ -29,10 +29,7 @@ $ git clone https://github.com/doneisdone36/JetBot_YOLO.git
 $ cd JetBot_YOLO  
 # Model download
 $ sh jetson_setup/opencv.sh
-$ sh jetson_setup/
-
-pip install -r "requirement.txt"
-
+$ sh jetson_setup/essential_build.sh
 ```
 
 ## Getting Started
@@ -48,7 +45,7 @@ $ python3 yolov7_push_up.py --source 0  # webcam
 ## Counting push-up
 <img src="./push_up_analysis.png" width="800" height="450"/>
 
-##Code Block
+## Code Block
  - yolov7_push_up.py
 ```
 kpts = output[idx, :7].T
@@ -89,6 +86,30 @@ img = np.array(im)
 if drawskeleton : 
   for idx in range(output.shape[0]):
     plot_skeleton_kpts(img, output[idx, 7:].T,3)
+```
+ - yolov7_push_util.py
+```
+def Angle(image, kpts, p1,p2,p3, draw = True):
+    coords = []
+    no_kpts = len(kpts)//3
+    for i in range(no_kpts):
+        cx,cy = kpts[3*i], kpts[3*i + 1]
+        conf = kpts[3*i + 2]
+        coords.append([i, cx,cy, conf])
+        
+    points = (p1,p2,p3)
+
+    
+    x1,y1 = coords[p1][1:3]
+    x2,y2 = coords[p2][1:3]
+    x3,y3 = coords[p3][1:3]
+    
+    
+    angle = math.degrees(math.atan2(y3-y2, x3-x2) - math.atan2(y1-y2,x1-x2))
+    
+    if draw : 
+    cv2.line(image, (int(x1),int(y1)), (int(x2),int(y2)),(255,255,255),3)
+    cv2.line(image, (int(x3),int(y3)), (int(x2),int(y2)),(255,255,255),3)
 ```
 
 ## Version_Log
