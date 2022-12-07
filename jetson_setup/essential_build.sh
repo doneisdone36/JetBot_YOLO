@@ -19,6 +19,9 @@ sudo apt-get install -y python-matplotlib python3-testresources
 #yolov7
 git clone -b v0.5 https://github.com/WongKinYiu/yolov7.git
 #mv_files
+mv yolov7_push_up.py yolov7/yolov7_push_up.py
+mv yolov7_push_util.py yolov7/yolov7_push_util.py
+
 cd yolov7
 pip3 install -r "requirement.txt"
 wget https://github.com/WongKinYiu/yolov7/releases/download/v0.1/yolov7-w6-pose.pt
