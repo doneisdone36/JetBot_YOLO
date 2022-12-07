@@ -46,7 +46,7 @@ $ python3 yolov7_push_up.py --source 0  # webcam
 3. 운동 동작 영상과 분석 정보를 저장하고 축적해 사용자의 운동량을 체크해주고, 정확한 자세 정보에 대한 데이터를 보여준다.
 
 ## Counting push-up
-<img src="./push_up_analysis.gif" width="800" height="450"/>
+<img src="./push_up_analysis.png" width="800" height="450"/>
 
 ##Code Block
  - yolov7_push_up.py
