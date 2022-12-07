@@ -1,5 +1,10 @@
 # JetBot_YOLO - Pose estimation
+<img src="https://img.shields.io/badge/Jetson Nano-76B900?style=for-the-badge&logo=nvidia&logoColor=white"><img src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white">
 
+# Project
+ - yolov7-w6-keypoint을 사용하여 사람의 몸을 확인 합니다.
+ - yolo를 통해 가져온 값을 통해 사람을 측정합니다.
+ 
 ## Team
 
 - 김규진
@@ -22,11 +27,11 @@ yolov7-w6-keypoint 모델을 key-point tracking 하여 사용자의 운동 부�
 
 ## Installation
 ```
-$git clone https://github.com/doneisdone36/JetBot_YOLO.git
-$cd JetBot_YOLO  
+$ git clone https://github.com/doneisdone36/JetBot_YOLO.git
+$ cd JetBot_YOLO  
 # Model download
-$git clone https://github.com/WongKinYiu/yolov7.git
-pip install -r "requirement.txt"
+$ sh jetson_setup/opencv.sh
+$ sh jetson_setup/essential_build.sh
 
 ```
 
