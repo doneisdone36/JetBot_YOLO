@@ -9,9 +9,10 @@ from models.experimental import attempt_load
 from utils.plots import output_to_keypoint, plot_skeleton_kpts
 from utils.general import non_max_suppression_kpt, strip_optimizer
 from torchvision import transforms
-from trainer import findAngle
+from yolov7_push_up_util import findAngle
 from PIL import Image, ImageDraw, ImageFont
 import math
+
 
 @torch.no_grad()
 def run(
@@ -39,17 +40,18 @@ def run(
         fw, fh = int(cap.get(3)), int(cap.get(4))
         if player.isnumeric():
             webcam = True
-            fw, fh = 1280, 768
+            fw, fh = 1280, 640
         
-        # vid_write_image = letterbox(
-        #     cap.read()[1], (fw), stride=64,auto=True)[0]
+        vid_write_image = letterbox(
+            cap.read()[1], (fw), stride=64,auto=True)[0]
         
-        # resize_height, resize_width = vid_write_image.shape[:2]
-        # out_video_name = "output" if source.isnumeric()else f"{input_path.split('/')[-1].split[0]}"
-        # out = cv2.VideoWriter(f"{out_video_name}_kpt.mp4", cv2.VideoWriter_fourcc(*'mp4v'),30,(resize_width,resize_height))
+        resize_height, resize_width = vid_write_image.shape[:2]
+        out_video_name = "output" if source.isnumeric()else f"{input_path.split('/')[-1].split[0]}"
+        out = cv2.VideoWriter(f"{out_video_name}_kpt.mp4", cv2.VideoWriter_fourcc(*'mp4v'),30,(resize_width,resize_height))
         
-        # 
         
+        elbow_state = 'up'
+        Is_Start = False
         
         frame_count, total_fps = 0, 0
         
@@ -63,14 +65,14 @@ def run(
         
         
         while True:
-            # frame_count += 1 
+            ## yolov7 keypoint baseline start
             print(f"Frame {frame_count} Processing")
+            
             ret,frame = cap.read()
             if ret:
+                start_time = time.time()
                 orig_frame = frame
-                
                 image = cv2.cvtColor(orig_frame, cv2.COLOR_BGR2RGB)
-                
                 
                 if webcam :
                     image = cv2.resize(image, (fw,fh), interpolation=cv2.INTER_LINEAR)
@@ -81,8 +83,6 @@ def run(
                 
                 image = image.to(device)
                 image = image.float()
-                start_time = time.time()
-                
                 
                 output, _ = model(image)
                     
@@ -95,27 +95,90 @@ def run(
                 img = img.cpu().numpy().astype(np.uint8)
                 img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
                 
-                # for idx in range(output.shape[0]):
-                #     plot_skeleton_kpts(img, output[idx,7:].T,3)
-            
-                # cv2.imshow('output',img)
-                # cv2.waitKey(1)  # 1 millisecond
+            ## yolov7 keypoint baseline end
                 
-
+                ## push up estimation
+                temp = {'elbow_right':[],'knee_right':[]}
+                pushups = []
+                
                 if curl_traker :
                     for idx in range(output.shape[0]):
-                        print("len kpts :",len(output[idx, 7:].T))
-                        kpts = output[idx, :7].T
-                        print("len kpts2 :",len(kpts))
-                        print("kpts :",output[idx, 7:].T)
-                        
-                        angleRight = findAngle(img, output[idx, 7:].T,5,7,9, draw=True)
                         
                         
-                        percentage = np.interp(angleRight, (210,290), (0,100))
-                        bar = np.interp(angleRight, (220,290), (int(fh)-100,100))
+                        ## estimate elbow up and down
+                        elbow_right_angle = findAngle(img, output[idx, 7:].T,5,7,9, draw=True)
+                        Is_elbow_up = elbow_right_angle > 130
+                        Is_elbow_down = elbow_right_angle < 110
+                        temp['elbow_right'].append(elbow_right_angle)
+                        print(f'elbow angle {elbow_right_angle}')
                         
-                        angleLeft = findAngle(img, output[idx, 7:].T,6,8,10, draw=True)
+                        ## estimate hip up and down
+                        # hip_right_angle = findAngle(img, output[idx, 7:].T,11,12,11, draw=True)
+                        # hip_condition = (hip_right_angle >140) and (hip_right_angle < 220)
+                        # print(f'hip angle {hip_right_angle} ')
+                        
+                        ## estimate knee up and down
+                        knee_right_angle = findAngle(img, output[idx, 7:].T,11,13,15, draw=True)
+                        knee_condition = (knee_right_angle > 130) and (knee_right_angle < 205)
+                        temp['knee_right'].append(knee_right_angle)
+                        print(f'knee angle : {knee_right_angle}')
+                        
+                        
+                        lower_body_condition =  knee_condition
+                        
+                        
+                        Is_pushup_angle = (elbow_right_angle > 140)  and  (knee_right_angle > 125)   
+                        if Is_pushup_angle :
+                            Is_Start = True
+                            print("success")
+                        if not Is_Start :
+                            temp['elbow_right'].pop()
+                            temp['knee_right'].pop()
+                        else :
+                            print('temp elbow :',temp['elbow_right'])
+                            print('knee right :',temp['knee_right'])
+                            if Is_elbow_up and elbow_state == "down" and lower_body_condition :
+                                
+                                pushup_endtime = time.time()
+                                elbow_state = "up"
+                                element = []
+                                
+                                if max(temp['elbow_right']) > 160:
+                                    element.append(1)
+                                else :
+                                    element.append(0) 
+                                    
+                                if min(temp['elbow_right']) < 70:
+                                    element.append(1)
+                                else:
+                                    element.append(0)
+                                
+                                temp['elbow_right'] = []
+                                
+                                if min(temp['knee_right']) < 130:
+                                    element.append(0)
+                                else:
+                                    element.append(1)
+                                
+                                temp['knee_right'] = []
+                                
+                                pushups.append(element)
+                                
+                            
+                            elif Is_elbow_down and elbow_state == 'up' and lower_body_condition:
+                                pushup_starttime = time.time()
+                                elbow_state = 'down'
+                                
+                            im = Image.fromarray(img)
+                            draw = ImageDraw.Draw(im)
+                            draw.text((145,100), f"{int(len(pushups))}%", font=font, fill=(255,255,255))
+                    
+                            
+                        
+                        percentage = np.interp(elbow_right_angle, (210,290), (0,100))
+                        bar = np.interp(elbow_right_angle, (220,290), (int(fh)-100,100))
+                        
+                        
                         
                         
                         color = (254,118,136)
@@ -130,32 +193,30 @@ def run(
                                 bcount += 0.5
                                 direction = 0
                                 
-                        cv2.line(img,(100,100),(100, int(fh)-100),(255,255,255), 30)
-                        cv2.line(img,(100,int(bar)),(100, int(fh)-100), color, 30)
+                        # cv2.line(img,(100,100),(100, int(fh)-100),(255,255,255), 30)
+                        # cv2.line(img,(100,int(bar)),(100, int(fh)-100), color, 30)
                         
-                        if (int(percentage) < 10):
-                            cv2.line(img, (155, int(bar)), (190,int(bar)),color,40)
-                        elif((int(percentage) >= 10) and (int(percentage)>100)):
-                            cv2.line(img, (155, int(bar)), (200,int(bar)),color,40)
-                        else:
-                            cv2.line(img, (155, int(bar)), (210,int(bar)),color,40)
+                        # if (int(percentage) < 10):
+                        #     cv2.line(img, (155, int(bar)), (190,int(bar)),color,40)
+                        # elif((int(percentage) >= 10) and (int(percentage)>100)):
+                        #     cv2.line(img, (155, int(bar)), (200,int(bar)),color,40)
+                        # else:
+                        #     cv2.line(img, (155, int(bar)), (210,int(bar)),color,40)
                             
-                        im = Image.fromarray(img)
-                        draw = ImageDraw.Draw(im)
-                        draw.rounded_rectangle((fw-300, (fh//2)- 100, fw-50, (fh//2) * 100),fill = color, radius= 40)
+                        # im = Image.fromarray(img)
+                        # draw = ImageDraw.Draw(im)
+                        # draw.rounded_rectangle((fw-300, (fh//2)- 100, fw-50, (fh//2) * 100),fill = color, radius= 40)
 
-                        draw.text(
-                            (145,100), f"{int(percentage)}%", font=font, fill=(255,255,255))
+                        # draw.text(
+                        #     (145,100), f"{int(percentage)}%", font=font, fill=(255,255,255))
                     
-                        draw.text(
-                            (fw-230,(fh//2)-100), f"{int(bcount)}%", font=font1, fill=(255,255,255))
+                        # draw.text(
+                        #     (fw-230,(fh//2)-100), f"{int(bcount)}%", font=font1, fill=(255,255,255))
 
-                        img = np.array(im)
+                        # img = np.array(im)
                     
                 if drawskeleton : 
                     for idx in range(output.shape[0]):
-                        print("len kpts :",len(output[idx, 7:].T))
-                        print("kpts :",output[idx, 7:].T)
                         plot_skeleton_kpts(img, output[idx, 7:].T,3)
                 
                 if webcam : 
@@ -176,93 +237,16 @@ def run(
                 total_fps += fps
                 frame_count += 1
                 # out.write(img)
+                print(f'estimation:({end_time-start_time:.3f}s)')
+                
             else:
                 break
             
         cap.release()
         avg_fps = total_fps / frame_count
-        print(f"Average FPS : {avg_fps:.3f}")
+        print(f"Average FPS : {avg_fps}")
                     
-def findAngle(image, kpts, p1,p2,p3, draw = True):
-    coords = []
-    no_kpts = len(kpts)//3
-    for i in range(no_kpts):
-        cx,cy = kpts[3*i], kpts[3*i + 1]
-        conf = kpts[3*i + 2]
-        coords.append([i, cx,cy, conf])
         
-    points = (p1,p2,p3)
-    print("p1 : ",p1)
-    print("p2 : ",p2)
-    print("p3 : ",p3)
-    print("coords shape: ",len(coords))
-    
-    x1,y1 = coords[p1][1:3]
-    x2,y2 = coords[p2][1:3]
-    x3,y3 = coords[p3][1:3]
-    
-    
-    angle = math.degrees(math.atan2(y3-y2, x3-x2) - math.atan2(y1-y2,x1-x2))
-    
-    if angle < 0:
-        angle += 360
-        
-    
-    if draw : 
-        cv2.line(image, (int(x1),int(y1)), (int(x2),int(y2)),(255,255,255),3)
-        cv2.line(image, (int(x3),int(y3)), (int(x2),int(y2)),(255,255,255),3)
-        
-        
-        cv2.circle(image, (int(x1),int(y1)),10 ,(255,255,255),cv2.FILLED)
-        cv2.circle(image, (int(x1),int(y1)),10 ,(255,255,255),cv2.FILLED)
-        cv2.circle(image, (int(x1),int(y1)),10 ,(255,255,255),cv2.FILLED)
-        
-        cv2.circle(image, (int(x2),int(y2)),10 ,(255,255,255),cv2.FILLED)
-        cv2.circle(image, (int(x2),int(y2)),10 ,(255,255,255),cv2.FILLED)
-        cv2.circle(image, (int(x2),int(y2)),10 ,(255,255,255),cv2.FILLED)
-        
-        cv2.circle(image, (int(x3),int(y3)),10 ,(255,255,255),cv2.FILLED)
-        cv2.circle(image, (int(x3),int(y3)),10 ,(255,255,255),cv2.FILLED)
-        cv2.circle(image, (int(x3),int(y3)),10 ,(255,255,255),cv2.FILLED)
-        
-    return angle
-
-
-def calculate_angle2D(a,b,c,direction):
-  """
-  calculate_angle2D is divided by left and right side because this function uses external product
-  input : a,b,c -> landmarks with shape [x,y,z,visibility]
-          direction -> int -1 or 1
-                      -1 means Video(photo) for a person's left side and 1 means Video(photo) for a person's right side
-  output : angle between vector ba and bc with range 0~360
-  """
-  # external product's z value
-  external_z = (b[0]-a[0])*(b[1]-c[1]) - (b[1]-a[1])*(b[0]-c[0])
-
-  a = np.array(a[:2]) #first
-  b = np.array(b[:2]) #mid
-  c = np.array(c[:2]) #end
-
-  ba = b-a
-  bc = b-c
-  dot_result = np.dot(ba, bc)
-
-
-  ba_size = np.linalg.norm(ba)
-  bc_size = np.linalg.norm(bc)
-  radi = np.arccos(dot_result / (ba_size*bc_size))
-  angle = np.abs(radi*180.0/np.pi)
-
-  if external_z * direction > 0:
-    angle = 360 - angle
-
-  return angle
-
-                        
-                
-                    
-                
-            
 def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--source', type=str)  

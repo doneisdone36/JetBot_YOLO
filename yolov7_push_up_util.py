@@ -11,18 +11,16 @@ def findAngle(image, kpts, p1,p2,p3, draw = True):
         coords.append([i, cx,cy, conf])
         
     points = (p1,p2,p3)
-    print("p1 : ",p1)
-    print("p2 : ",p2)
-    print("p3 : ",p3)
-    print("coords shape: ",len(coords))
+
     
     x1,y1 = coords[p1][1:3]
     x2,y2 = coords[p2][1:3]
     x3,y3 = coords[p3][1:3]
     
     
-    # angle = math.degrees(math.atan2(y3-y2, x3-x2) - math.atan2(y1-y2,x1-x2))
-    angle = calculate_angle2D(coords[p1][1:3],coords[p2][1:3],coords[p3][1:3])
+    angle = math.degrees(math.atan2(y3-y2, x3-x2) - math.atan2(y1-y2,x1-x2))
+    # angle = calculate_angle2D(coords[p1][1:3],coords[p2][1:3],coords[p3][1:3])
+    
     
     if angle < 0:
         angle += 360
