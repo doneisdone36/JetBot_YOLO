@@ -2,7 +2,7 @@
 <img src="https://img.shields.io/badge/Jetson Nano-76B900?style=for-the-badge&logo=nvidia&logoColor=white"><img src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white">
 
 # Project
-Athletic posture check model 
+Athletic posture check model (push-up)
  
  
 ## Demo
@@ -10,9 +10,9 @@ Athletic posture check model
 
 ## Team
 
-- 김규진 
-- 박태현
-- 김연주
+- 김규진 (Kim Gyu_jin) [contact_mail](doneisdone36@gmail.com)
+- 박태현 (Park Tae_hyun) [contact_mail](pth0325@gmail.com)
+- 김연주 (Kim Yeon_ju) [contact_mail](yeonju4098@naver.com)
 
 
 ## Motivation
@@ -21,6 +21,13 @@ Athletic posture check model
 
 - We want to increase the effectiveness of exercise and reduce the risk of injury through correct posture by creating a program that tells us whether we have the correct posture and checks how much strain we have on our joints.
 
+## Packages
+ - Jetpack 4.6.1
+ - Python 3.6
+ - Pytorch 1.9.0
+ - Torch-vision 0.10.0
+ - OpenCV 4.6.0
+ - Numpy, pandas, seaborn, matplotliab ...
 
 
 ## Installation
@@ -38,15 +45,8 @@ $ sh jetson_setup/essential_build.sh # Our files move into yolov7[WongKinYiu](ht
 
 ```
 
-## Packages
- - Jetpack 4.6.1
- - Python 3.6
- - Pytorch 1.9.0
- - Torch-vision 0.10.0
- - OpenCV 4.6.0
- - Numpy, pandas, seaborn, matplotliab ...
-
 ## Getting Started
+ - After installing
 ```
 $ python3 yolov7_push_up.py --source 0 [ --drawskeleton -Tracker ] # webcam
 ```
