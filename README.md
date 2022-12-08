@@ -38,6 +38,14 @@ $ sh jetson_setup/essential_build.sh # Our files move into yolov7[WongKinYiu](ht
 
 ```
 
+## Packages
+ - Jetpack 4.6.1
+ - Python 3.6
+ - Pytorch 1.9.0
+ - Torch-vision 0.10.0
+ - OpenCV 4.6.0
+ - Numpy, pandas, seaborn, matplotliab ...
+
 ## Getting Started
 ```
 $ python3 yolov7_push_up.py --source 0  # webcam
