@@ -1,18 +1,18 @@
-# JetBot_YOLO - Push Up Helper
+# Push-Up Detector - Team YOLO
 <img src="https://img.shields.io/badge/Jetson Nano-76B900?style=for-the-badge&logo=nvidia&logoColor=white"><img src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white">
 
 # Project
-Athletic posture check model  use ( yolov7-w6-pose, Jetbot )
- 
+This project aims to create a push-up posture evaluator based on deep neural networks. We created a deep-learning model that evaluates the posture of push-ups based on the angle of the joints.  
+In this project, we used YOLO7-W6-pose-model and PyTorch library on Jetson NANO.  
  
 ## Demo
 <img src="./demo.gif" width="800" height="450"/>
 
 ## Team
-
-- 김규진 
-- 박태현
-- 김연주
+YOLO (You Only Look Once) (You Only Live Once)
+- 김규진 (Kim Gyu_jin) [contact_mail](doneisdone36@gmail.com)
+- 박태현 (Park Tae_hyun) [contact_mail](pth0325@gmail.com)
+- 김연주 (Kim Yeon_ju) [contact_mail](yeonju4098@naver.com)
 
 
 ## Motivation
@@ -20,23 +20,6 @@ Athletic posture check model  use ( yolov7-w6-pose, Jetbot )
 
 
 - We want to increase the effectiveness of exercise and reduce the risk of injury through correct posture by creating a program that tells us whether we have the correct posture and checks how much strain we have on our joints.
-
-
-
-## Installation
-1. first download jetpack 4.6.1
- - [Offical_Downlaod_jetpack_4.6.1](https://developer.nvidia.com/embedded/l4t/r32_release_v7.1/jp_4.6.1_b110_sd_card/jeston_nano/jetson-nano-jp461-sd-card-image.zip)
-2. Making bootable device 
- - [Offical_balena](https://www.balena.io/etcher/)
- - [Help Link](https://www.balena.io/blog/getting-started-with-the-nvidia-jetson-nano-using-balena/) 
-
-```
-$ git clone https://github.com/doneisdone36/JetBot_YOLO.git
-$ cd JetBot_YOLO  
-$ sh jetson_setup/opencv.sh # almost 3 hours
-$ sh jetson_setup/essential_build.sh # Our files move into yolov7[WongKinYiu](https://github.com/WongKinYiu/yolov7) folders
-
-```
 
 ## Packages
  - Jetpack 4.6.1
@@ -46,13 +29,36 @@ $ sh jetson_setup/essential_build.sh # Our files move into yolov7[WongKinYiu](ht
  - OpenCV 4.6.0
  - Numpy, pandas, seaborn, matplotliab ...
 
-## Getting Started
+
+## Installation
+1. first download jetpack 4.6.1
+ - [Offical_Downlaod_jetpack_4.6.1](https://developer.nvidia.com/embedded/l4t/r32_release_v7.1/jp_4.6.1_b110_sd_card/jeston_nano/jetson-nano-jp461-sd-card-image.zip)
+2. Making bootable device 
+ - [Offical_balena](https://www.balena.io/etcher/)
+ - [Help Link](https://www.balena.io/blog/getting-started-with-the-nvidia-jetson-nano-using-balena/) 
+
+```bash
+$ git clone https://github.com/doneisdone36/JetBot_YOLO.git
+$ cd JetBot_YOLO  
+$ sh jetson_setup/opencv.sh # almost 3 hours
+$ sh jetson_setup/essential_build.sh # Our files move into yolov7[WongKinYiu](https://github.com/WongKinYiu/yolov7) folders
+
 ```
+
+## Getting Started
+ - After installing
+```bash
 $ python3 yolov7_push_up.py --source 0 [ --drawskeleton -Tracker ] # webcam
 ```
 
-## Goal
+## Goal (remake)
 <img src="./push_up_analysis.png" width="800" height="450"/>
+
+## yolov7-w6-pose vs mediapipe
+```
+Something -> graph ? / FPS
+
+```
 
 ## Code Block
  load image to cv2 [yolov7-w6-pose baseline](https://github.com/WongKinYiu/yolov7/blob/main/tools/instance.ipynb)
