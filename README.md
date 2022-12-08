@@ -48,7 +48,7 @@ $ sh jetson_setup/essential_build.sh # Our files move into yolov7[WongKinYiu](ht
 
 ## Getting Started
 ```
-$ python3 yolov7_push_up.py --source 0  # webcam
+$ python3 yolov7_push_up.py --source 0 [ --drawskeleton -Tracker ] # webcam
 ```
 
 ## Goal
@@ -60,49 +60,63 @@ $ python3 yolov7_push_up.py --source 0  # webcam
 <img src="./push_up_analysis.png" width="800" height="450"/>
 
 ## Code Block
- - yolov7_push_up.py
+ load image to cv2 [yolov7-w6-pose baseline](https://github.com/WongKinYiu/yolov7/blob/main/tools/instance.ipynb)
+```python
+# yolov7_push.py
+ret,frame = cap.read()
+if ret:
+    start_time = time.time()
+    orig_frame = frame
+    image = cv2.cvtColor(orig_frame, cv2.COLOR_BGR2RGB)
+    
+    if webcam :
+        image = cv2.resize(image, (fw,fh), interpolation=cv2.INTER_LINEAR)
+        
+    image = letterbox(image, (fw), stride=64, auto=True)[0]
+    image = transforms.ToTensor()(image)
+    image = torch.tensor(np.array([image.numpy()]))
+    
+    image = image.to(device)
+    image = image.float()
+    
+    output, _ = model(image)
+        
+    output = non_max_suppression_kpt(
+        output, 0.5, 0.65, nc = model.yaml['nc'], nkpt = model.yaml['nkpt'], kpt_label=True
+    )
+    
+    output = output_to_keypoint(output)
+    img = image[0].permute(1, 2, 0) * 255
+    img = img.cpu().numpy().astype(np.uint8)
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+                
 ```
-kpts = output[idx, :7].T
-angle = Angle(img, kpts,5,7,9, draw=True)
-percentage = np.interp(angle, (210,290), (0,100))
-bar = np.interp(angle, (220,290), (int(fh)-100,100))
-                        
-                        
-if percentage == 100 :
-  if direction == 0 :
-    bcount += 0.5
-    direction += 1
-                                
-if percentage == 0:
-  if direction == 1:
-    bcount += 0.5
-    direction = 0
-cv2.line(img,(100,100),(100, int(fh)-100),(255,255,255), 30)
-cv2.line(img,(100,int(bar)),(100, int(fh)-100, color, 30))
-                        
-if (int(percentage) < 10):
-  cv2.line(img, (155, int(bar)), (190,int(bar),color,40))
-elif((int(percentage) >= 10) and (int(percentage)>100)):
-  cv2.line(img, (155, int(bar)), (200,int(bar),color,40))
-else:
-  cv2.line(img, (155, int(bar)), (210,int(bar),color,40))
-                            
-im = Image.fromarray(img)
-draw = ImageDraw.Draw(im)
-draw.rounded_rectangle((fw-300, (fh//2)- 100, fw-50, (fh//2) * 100),fill = color, radius= 40)
+Push up Angle
+```python
+## estimate elbow up and down
+elbow_right_angle = Angle(img, output[idx, 7:].T,5,7,9, draw=True)
+Is_elbow_up = elbow_right_angle > 130
+Is_elbow_down = elbow_right_angle < 110
+temp['elbow_right'].append(elbow_right_angle)
+print(f'elbow angle {elbow_right_angle}')
 
-draw.text((145,int(bar)-17), "{0}%".format(int(percentage)), font=font, fill=(255,255,255))
-            
-draw.text((fw-230,(fh//2)-100), "{0}%".format(int(bcount)), font=font1, fill=(255,255,255))
+## estimate knee up and down
+knee_right_angle = Angle(img, output[idx, 7:].T,11,13,15, draw=True)
+knee_condition = (knee_right_angle > 130) and (knee_right_angle < 220)
+temp['knee_right'].append(knee_right_angle)
+print(f'knee angle : {knee_right_angle}')
 
-img = np.array(im)
-                    
-if drawskeleton : 
-  for idx in range(output.shape[0]):
-    plot_skeleton_kpts(img, output[idx, 7:].T,3)
+
+lower_body_condition =  knee_condition
+
+Is_pushup_angle = (elbow_right_angle > 140)  and  (knee_right_angle > 125)  
+if Is_pushup_angle :
+    Is_Start = True
+    print("success")
+
 ```
- - yolov7_push_util.py
-```
+getAngle
+```python
 def Angle(image, kpts, p1,p2,p3, draw = True):
     coords = []
     no_kpts = len(kpts)//3
@@ -120,12 +134,8 @@ def Angle(image, kpts, p1,p2,p3, draw = True):
     
     
     angle = math.degrees(math.atan2(y3-y2, x3-x2) - math.atan2(y1-y2,x1-x2))
-    
-    if draw : 
-    cv2.line(image, (int(x1),int(y1)), (int(x2),int(y2)),(255,255,255),3)
-    cv2.line(image, (int(x3),int(y3)), (int(x2),int(y2)),(255,255,255),3)
-```
 
+```
 ## Version_Log
 branch
  - jetson_install -> jetson_setup(0.0.4)
