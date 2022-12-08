@@ -24,12 +24,18 @@
 
 
 ## Installation
+1. first download jetpack 4.6.1
+ - [Offical_Downlaod_jetpack_4.6.1](https://developer.nvidia.com/embedded/l4t/r32_release_v7.1/jp_4.6.1_b110_sd_card/jeston_nano/jetson-nano-jp461-sd-card-image.zip)
+2. Making bootable device 
+ - [Offical_balena](https://www.balena.io/etcher/)
+ - [Help Link](https://www.balena.io/blog/getting-started-with-the-nvidia-jetson-nano-using-balena/) 
+
 ```
 $ git clone https://github.com/doneisdone36/JetBot_YOLO.git
 $ cd JetBot_YOLO  
-# Model download
-$ sh jetson_setup/opencv.sh
-$ sh jetson_setup/essential_build.sh
+$ sh jetson_setup/opencv.sh # almost 3 hours
+$ sh jetson_setup/essential_build.sh # Our files move into yolov7[WongKinYiu](https://github.com/WongKinYiu/yolov7) folders
+
 ```
 
 ## Getting Started
