@@ -2,8 +2,8 @@
 <img src="https://img.shields.io/badge/Jetson Nano-76B900?style=for-the-badge&logo=nvidia&logoColor=white"><img src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white">
 
 # Project
- - yolov7-w6-keypoint을 사용하여 사람의 몸을 확인 합니다.
- - yolo를 통해 가져온 값을 통해 push-up을 측정합니다.
+Athletic posture check model 
+ 
  
 ## Demo
 <img src="./demo.gif" width="800" height="450"/>
@@ -16,10 +16,10 @@
 
 
 ## Motivation
-- 코로나19 바이러스가 전세계를 강타하면서 건강을 위해 운동을 하겠다는 인구가 높아지고 있습니다. 또한 다중이 이용하는 체육시설 대신 집에서 혼자 홈트레이닝을 하는 사람들이 많아졌는데 혼자 운동을 하다보니 정확한 자세로 운동을 하고 있는지 알기가 쉽지 않습니다. 안정적이지 못한 자세로 무리하게 운동을 하다보면 부상을 당할 수 있습니다.  
+- As the COVID-19 virus hits the world, the number of people who want to exercise for their health is increasing. In addition, there are more people who do home training alone at home instead of sports facilities used by many people, but it is not easy to know if they are exercising in an accurate position because they exercise alone. If you exercise too hard in an unstable position, you can get injured.
 
 
-- 저희는 정확한 자세를 취했는지 알려주고, 관절에 어느정도의 무리가 가는지 체크해주는 프로그램을 만들어 올바른 자세를 통해 운동의 효과를 높여주고 부상의 위험성을 줄여주고자 합니다.
+- We want to increase the effectiveness of exercise and reduce the risk of injury through correct posture by creating a program that tells us whether we have the correct posture and checks how much strain we have on our joints.
 
 
 
