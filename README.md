@@ -10,9 +10,9 @@ In this project, we used YOLO7-W6-pose-model and PyTorch library on Jetson NANO.
 
 ## Team
 YOLO (You Only Look Once) (You Only Live Once)
-- 김규진 (Kim Gyu_jin) [Github](https://github.com/doneisdone36) [contact_mail](doneisdone36@gmail.com)
-- 박태현 (Park Tae_hyun) [Github]() [contact_mail](pth0325@gmail.com)
-- 김연주 (Kim Yeon_ju) [Github]() [contact_mail](yeonju4098@naver.com)
+- 김규진 (Kim Gyu_jin) [Github](https://github.com/doneisdone36) email : doneisdone36@gmail.com
+- 박태현 (Park Tae_hyun) [Github]() email : pth0325@gmail.com
+- 김연주 (Kim Yeon_ju) [Github]() [contact_mail] email : yeonju4098@naver.com
 
 
 ## Motivation
