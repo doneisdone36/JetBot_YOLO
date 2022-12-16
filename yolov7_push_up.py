@@ -4,17 +4,43 @@ import torch
 import argparse
 import numpy as np
 from utils.datasets import letterbox
-from utils.torch_utils import select_device
+# from utils.torch_utils import select_device
 from models.experimental import attempt_load
 from utils.plots import output_to_keypoint, plot_skeleton_kpts
 from utils.general import non_max_suppression_kpt, strip_optimizer
 from torchvision import transforms
 from yolov7_push_util import Angle
-from jetson_util import Gstreamer_pipeline
+# from jetson_util import Gstreamer_pipeline
 from PIL import Image, ImageDraw, ImageFont
 import math
 
-cap = cv2.VideoCapture('nvarguscamerasrc ! video/x-raw(memory:NVMM), width=1280, height=720, format=(string)NV12, framerate=(fraction)20/1 ! nvvidconv ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink', cv2.CAP_GSTREAMER)
+def gstreamer_pipeline(
+    capture_width=1280,
+    capture_height=720,
+    display_width=1280,
+    display_height=720,
+    framerate=60,
+    flip_method=0,
+):
+    return (
+        "nvarguscamerasrc ! "
+        "video/x-raw(memory:NVMM), "
+        "width=(int)%d, height=(int)%d, "
+        "format=(string)NV12, framerate=(fraction)%d/1 ! "
+        "nvvidconv flip-method=%d ! "
+        "video/x-raw, width=(int)%d, height=(int)%d, format=(string)BGRx ! "
+        "videoconvert ! "
+        "video/x-raw, format=(string)BGR ! appsink"
+        % (
+            capture_width,
+            capture_height,
+            framerate,
+            flip_method,
+            display_width,
+            display_height,
+        )
+    )
+
 
 
 def IsOutlier_pushups(angle_list, joint):
@@ -36,8 +62,8 @@ def IsOutlier_pushups(angle_list, joint):
 @torch.no_grad()
 def run(
         yolo_weights = 'yolov7-w6-pose.pt',
-        source = 'test.mp4',
-        device = 'cpu',
+        source = '0',
+        device = 'cuda:0',
         tracker = True,
         drawskeleton = False
 ):      
@@ -46,27 +72,32 @@ def run(
     if player in ["mp4","webm","avi"] or player not in ["mp4","webm","avi"] and player.isnumeric():
         
         input_path = int(source) if source.isnumeric() else source 
-        device = select_device(opt.device)
-        half = device.type != 'cpu'
+        # device = select_device(opt.device)
+        USE_CUDA = torch.cuda.is_available()
+        device = torch.device("cuda" if USE_CUDA else "cpu")
+        half = device.type != 'cuda:0'
         model = attempt_load(yolo_weights,map_location=device)
         _ = model.eval()
         
         
-        cap = cv2.VideoCapture(input_path)
         webcam = False
-        
-            
-        fw, fh = int(cap.get(3)), int(cap.get(4))
         if player.isnumeric():
+            cap = cv2.VideoCapture(gstreamer_pipeline(flip_method=0), cv2.CAP_GSTREAMER)
             webcam = True
-            fw, fh = 640, 320
+            fw, fh = 1280, 720
+        else:
+            cap = cv2.VideoCapture(input_path)
+        
+                  
+        fw, fh = int(cap.get(3)), int(cap.get(4))
         
         vid_write_image = letterbox(
             cap.read()[1], (fw), stride=64,auto=True)[0]
-        
-        resize_height, resize_width = vid_write_image.shape[:2]
-        out_video_name = "output" if source.isnumeric()else f"{input_path.split('/')[-1].split[0]}"
-        out = cv2.VideoWriter(f"{out_video_name}_kpt.mp4", cv2.VideoWriter_fourcc(*'mp4v'),30,(resize_width,resize_height))
+
+        # #test        
+        # resize_height, resize_width = vid_write_image.shape[:2]
+        # out_video_name = "output" if source.isnumeric()else f"{input_path.split('/')[-1].split[0]}"
+        # out = cv2.VideoWriter(f"{out_video_name}_kpt.mp4", cv2.VideoWriter_fourcc(*'mp4v'),30,(resize_width,resize_height))
         
         
         elbow_state = 'up'
@@ -79,7 +110,7 @@ def run(
         bcount = 0
         direction = 0
         
-        fontpath = "BMJUA_otf.otf"
+        fontpath = "NanumGothic.ttf"
         font = ImageFont.truetype(fontpath, 32)
         
         while True:
