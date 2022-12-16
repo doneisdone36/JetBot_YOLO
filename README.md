@@ -11,8 +11,8 @@ In this project, we used YOLO7-W6-pose-model and PyTorch library on Jetson NANO.
 ## Team
 YOLO (You Only Look Once) (You Only Live Once)
 - 김규진 (Kim Gyu_jin) [Github](https://github.com/doneisdone36) email : doneisdone36@gmail.com
-- 박태현 (Park Tae_hyun) [Github]() email : pth0325@gmail.com
-- 김연주 (Kim Yeon_ju) [Github]() [contact_mail] email : yeonju4098@naver.com
+- 박태현 (Park Tae_hyun) [Github](https://github.com/todd-park) email : pth0325@gmail.com
+- 김연주 (Kim Yeon_ju) [Github]() email : yeonju4098@naver.com
 
 
 ## Motivation
@@ -51,7 +51,7 @@ $ sh jetson_setup/essential_build.sh # Our files move into yolov7[WongKinYiu](ht
 $ python3 yolov7_push_up.py --source 0 [ --drawskeleton -Tracker ] # webcam
 ```
 
-## Goal (remake)
+## Goal
 <img src="./push_up_analysis.png" width="800" height="450"/>
 
 ## yolov7-w6-pose vs mediapipe
